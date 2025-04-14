@@ -1,7 +1,3 @@
-// Patch avoids manual peerDependencies installs in the projects and fixes IDE issues with resolving paths to plugins
-// More info about the issue and the patch in the thread: https://github.com/eslint/eslint/issues/3458#issuecomment-516666620
-require("@rushstack/eslint-patch/modern-module-resolution");
-
 const {
   parser,
   settings,
@@ -14,7 +10,6 @@ const {
   extendsPrettier,
   rules,
   overridesJson,
-  overridesGraphql,
 } = require("./common");
 
 const pluginsSecurity = ["no-unsanitized"];
@@ -134,5 +129,5 @@ module.exports = {
     browser: true,
     jest: true,
   },
-  overrides: [overrides, overridesJson, overridesGraphql],
+  overrides: [overrides, overridesJson],
 };

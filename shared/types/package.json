@@ -7,7 +7,7 @@
   "scripts": {
     "build": "rm -rf dist && tsc",
     "eslint": "eslint '**/*.{ts,tsx}' 'package.json'",
-    "prettier": "prettier '**/*.{ts,tsx}' '*.js' 'package.json' '**/*.md",
+    "prettier": "prettier '**/*.{ts,tsx}' '*.js' 'package.json' --check",
     "lint": "pnpm prettier --check && pnpm eslint",
     "lint:fix": "pnpm prettier --write && pnpm eslint --fix",
     "test": "echo No Tests"

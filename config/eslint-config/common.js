@@ -102,5 +102,4 @@ module.exports = {
   extendsPrettier,
   rules,
   overridesJson,
-  overridesGraphql,
 };
