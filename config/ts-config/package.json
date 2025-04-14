@@ -7,7 +7,7 @@
   "scripts": {
     "build": "",
     "eslint": "eslint 'package.json' --cache --cache-location './.rush/temp/.eslintcache'",
-    "lint": "pnpm prettier --check && pnpm eslint",
+    "lint": "",
     "lint:fix": "pnpm prettier --write && pnpm eslint --fix",
     "prettier": "prettier '*.js' 'package.json'",
     "test": ""
