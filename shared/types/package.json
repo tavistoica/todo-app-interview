@@ -1,0 +1,25 @@
+{
+  "name": "@shared/types",
+  "version": "1.0.0",
+  "description": "Shared types for the project",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "rm -rf dist && tsc",
+    "eslint": "eslint '**/*.{ts,tsx}' 'package.json'",
+    "prettier": "prettier '**/*.{ts,tsx}' '*.js' 'package.json' '**/*.md",
+    "lint": "pnpm prettier --check && pnpm eslint",
+    "lint:fix": "pnpm prettier --write && pnpm eslint --fix",
+    "test": "echo No Tests"
+  },
+  "dependencies": {
+    "typescript": "5.8.3",
+    "ts-node": "10.9.2",
+    "prettier": "3.5.3",
+    "eslint": "9.24.0",
+    "@types/node": "22.14.1",
+    "@config/eslint-config": "workspace:*",
+    "@config/prettier-config": "workspace:*",
+    "@config/ts-config": "workspace:*"
+  }
+}

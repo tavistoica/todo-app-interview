@@ -1,71 +1,31 @@
 import { APIGatewayProxyHandler } from 'aws-lambda'
 import { v4 as uuidv4 } from 'uuid'
-import { TodoItem } from '../interfaces/todo-item'
-import { dynamoDb } from '../lib/dynamodb'
-import { PutCommand } from '@aws-sdk/lib-dynamodb'
+import { TodoItem, TodoItemRequest } from '@shared/types'
+import { createTodoItem } from '../lib/dynamodb'
+import { successResponse } from '../lib/utils/responses'
+import { getBodyData } from '../lib/api-gateway'
+import middy from '@middy/core'
+import { errorHandler } from '../lib/middleware/error-handler'
+import { validateTodoItem, createTodoSchema } from '../lib/validation'
 
-const tableName = process.env.TABLE_NAME
+export const createTodo: APIGatewayProxyHandler = async (event) => {
+  const { task, completed, image } = getBodyData<TodoItemRequest>(event)
 
-export const handler: APIGatewayProxyHandler = async (event) => {
-  try {
-    if (event.body == null) {
-      throw new Error('Request body is undefined or null')
-    }
+  await validateTodoItem({ task, completed, image }, createTodoSchema)
 
-    let data: any
-    try {
-      data = JSON.parse(event.body)
-    } catch (e) {
-      throw new Error('Invalid JSON in request body')
-    }
-
-    if (!data || !data.task) {
-      throw new Error('Task is missing in request body')
-    }
-
-    const item: any = {
-      id: uuidv4(),
-      task: data.task,
-      completed: data.completed ? data.completed : false,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    }
-
-    const params: any = {
-      TableName: tableName as string,
-      Item: item,
-      ConditionExpression: 'attribute_not_exists(id)',
-    }
-
-    await dynamoDb.send(new PutCommand(params))
-
-    return {
-      statusCode: 201,
-      body: JSON.stringify(item),
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Custom-Header': 'custom value',
-      },
-    }
-  } catch (error) {
-    console.error('Error creating to-do item:', error)
-
-    return {
-      statusCode: 400,
-      body: JSON.stringify({
-        error: 'Could not create to-do item',
-        message: error.message,
-        stack: error.stack,
-        timestamp: new Date().toISOString(),
-        requestId: event.requestContext
-          ? event.requestContext.requestId
-          : 'N/A',
-        debugInfo: 'This is some debug info',
-      }),
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Custom-Header': 'error',
-      },
-    }
+  const currentTime = new Date().toISOString()
+  const item: TodoItem = {
+    id: uuidv4(),
+    task,
+    image,
+    completed: completed ?? false,
+    createdAt: currentTime,
+    updatedAt: currentTime,
   }
+
+  await createTodoItem(item)
+
+  return successResponse(item, 201)
 }
+
+export const handler = middy(createTodo).use(errorHandler())

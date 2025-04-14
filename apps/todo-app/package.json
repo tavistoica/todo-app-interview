@@ -4,14 +4,31 @@
   "scripts": {
     "dev": "next",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "eslint": "eslint '**/*.{ts,tsx}' 'package.json'",
+    "prettier": "prettier '**/*.{ts,tsx}' '*.js' 'package.json' '**/*.md",
+    "lint": "pnpm prettier --check && pnpm eslint",
+    "lint:fix": "pnpm prettier --write && pnpm eslint --fix",
+    "test": "jest --runInBand --passWithNoTests"
   },
   "dependencies": {
-    "@emotion/react": "11.13.3",
-    "@emotion/styled": "11.13.0",
-    "@mui/material": "6.1.1",
-    "next": "14.2.12",
-    "react": "18.3.1",
-    "react-dom": "18.3.1"
+    "@emotion/react": "11.14.0",
+    "@emotion/styled": "11.14.0",
+    "@mui/material": "7.0.2",
+    "@mui/icons-material": "7.0.2",
+    "next": "15.3.0",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "@shared/types": "workspace:*",
+    "dotenv-flow": "4.1.0",
+    "ts-jest": "29.1.5"
+  },
+  "devDependencies": {
+    "@config/eslint-config": "workspace:*",
+    "@config/jest-config": "workspace:*",
+    "@config/prettier-config": "workspace:*",
+    "@config/ts-config": "workspace:*",
+    "@types/react": "^19.1.1",
+    "@types/react-dom": "^19.1.2"
   }
 }

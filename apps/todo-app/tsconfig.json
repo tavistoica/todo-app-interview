@@ -1,0 +1,10 @@
+{
+  "extends": "@config/ts-config/tsconfig-browser.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": ".",
+    "incremental": true
+  },
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "exclude": ["node_modules"]
+}

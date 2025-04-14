@@ -1,12 +1,9 @@
-import React from "react"
+import React from 'react'
 
 const Preamble = () => (
   <>
     <h1>Welcome to the ATG To-Do App</h1>
-    <p>
-      This is a simple project, with two packages, an app (this!), and a Lambda
-      based API service.
-    </p>
+    <p>This is a simple project, with two packages, an app (this!), and a Lambda based API service.</p>
   </>
 )
 
@@ -14,7 +11,7 @@ function HomePage() {
   return (
     <div
       style={{
-        textAlign: "center",
+        textAlign: 'center',
       }}
     >
       <Preamble />

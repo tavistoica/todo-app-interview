@@ -1,41 +1,27 @@
-import {
-  APIGatewayProxyEventPathParameters,
-  APIGatewayProxyHandler,
-} from "aws-lambda"
-import { dynamoDb } from "../lib/dynamodb"
-import { ScanCommand } from "@aws-sdk/client-dynamodb"
-import { unmarshall } from "@aws-sdk/util-dynamodb"
-
-const tableName = process.env.TABLE_NAME
-
-export const handler: APIGatewayProxyHandler = async (event) => {
-  try {
-    const { id } = event.pathParameters as APIGatewayProxyEventPathParameters
-    console.log(id)
-    const params = {
-      TableName: tableName as string,
-      FilterExpression: "#id = :id",
-      ExpressionAttributeNames: {
-        "#id": "id",
-      },
-      ExpressionAttributeValues: {
-        ":id": { S: id as string },
-      },
-    }
-
-    const result = await dynamoDb.send(new ScanCommand(params))
-    console.log(result)
-    return {
-      statusCode: 200,
-      body:
-        result && result.Items
-          ? JSON.stringify(unmarshall(result.Items[0]))
-          : JSON.stringify({ error: "Item not found" }),
-    }
-  } catch (error) {
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ error: "Could not retrieve to-do item" }),
-    }
+import { APIGatewayProxyHandler } from 'aws-lambda'
+import { getTodoItem } from '../lib/dynamodb'
+import { unmarshall } from '@aws-sdk/util-dynamodb'
+import { successResponse } from '../lib/utils/responses'
+import middy from '@middy/core'
+import { errorHandler } from '../lib/middleware/error-handler'
+import { BadRequestError, NotFoundError } from '../lib/errors'
+export const getTodo: APIGatewayProxyHandler = async (event) => {
+  if (!event.pathParameters) {
+    throw new BadRequestError('Path parameters are missing')
   }
+
+  const { id } = event.pathParameters
+  if (!id) {
+    throw new BadRequestError("Path parameter 'id' is missing or invalid")
+  }
+
+  const result = await getTodoItem(id)
+
+  if (!result.Items || result.Items.length === 0) {
+    throw new NotFoundError('To-do item not found')
+  }
+
+  return successResponse(unmarshall(result.Items[0]), 200)
 }
+
+export const handler = middy(getTodo).use(errorHandler())

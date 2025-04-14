@@ -1,0 +1,17 @@
+{
+  "name": "@config/prettier-config",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Prettier common configs",
+  "main": "index.json",
+  "scripts": {
+    "prettier": "prettier '*.js' 'package.json'",
+    "lint": "pnpm prettier --check && pnpm eslint && pnpm markdownlint",
+    "lint:fix": "pnpm prettier --write && pnpm eslint --fix && pnpm markdownlint --fix",
+    "test": "",
+    "build": ""
+  },
+  "devDependencies": {
+    "prettier": "3.5.3"
+  }
+}

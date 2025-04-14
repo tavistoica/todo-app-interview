@@ -1,55 +1,30 @@
-import {
-  APIGatewayProxyEventPathParameters,
-  APIGatewayProxyHandler,
-} from 'aws-lambda'
-import { TodoItem } from '../interfaces/todo-item'
-import { dynamoDb } from '../lib/dynamodb'
-import { UpdateCommand, UpdateCommandInput } from '@aws-sdk/lib-dynamodb'
+import middy from '@middy/core'
+import { APIGatewayProxyHandler } from 'aws-lambda'
+import { TodoItemRequest } from '@shared/types'
+import { updateTodoItem } from '../lib/dynamodb'
+import { getBodyData } from '../lib/api-gateway'
+import { successResponse } from '../lib/utils/responses'
+import { errorHandler } from '../lib/middleware/error-handler'
+import { BadRequestError } from '../lib/errors'
+import { updateTodoSchema, validateTodoItem } from '../lib/validation'
 
-const tableName = process.env.TABLE_NAME
+export const updateTodo: APIGatewayProxyHandler = async (event) => {
+  const { task, completed, image } = getBodyData<TodoItemRequest>(event)
 
-export const handler: APIGatewayProxyHandler = async (event) => {
-  try {
-    if (!event.body) {
-      throw new Error('Request body is undefined or null')
-    }
+  await validateTodoItem({ task, completed, image }, updateTodoSchema)
 
-    const data = JSON.parse(event.body) as Omit<TodoItem, 'id'>
-    const { id } = event.pathParameters as APIGatewayProxyEventPathParameters
-
-    if (!id) {
-      throw new Error("Path parameter 'id' is missing")
-    }
-
-    const params: UpdateCommandInput = {
-      TableName: tableName as string,
-      Key: { id },
-      UpdateExpression: 'set task = :task, completed = :completed',
-      ExpressionAttributeValues: {
-        ':task': data.task,
-        ':completed': data.completed,
-      },
-      ReturnValues: 'ALL_NEW',
-    }
-
-    const result = await dynamoDb.send(new UpdateCommand(params))
-
-    return {
-      statusCode: 200,
-      body: JSON.stringify(result.Attributes),
-    }
-  } catch (error) {
-    console.error('Error updating to-do item:', error)
-
-    return {
-      statusCode: 500,
-      body: JSON.stringify({
-        error: 'Could not update to-do item',
-        message: error.message,
-        stack: error.stack,
-        timestamp: new Date().toISOString(),
-        requestId: event.requestContext.requestId,
-      }),
-    }
+  if (!event.pathParameters) {
+    throw new BadRequestError('Path parameters are missing')
   }
+
+  const { id } = event.pathParameters
+  if (!id) {
+    throw new BadRequestError("Path parameter 'id' is missing")
+  }
+
+  const result = await updateTodoItem(id, { task, completed, image })
+
+  return successResponse(result.Attributes, 200)
 }
+
+export const handler = middy(updateTodo).use(errorHandler())

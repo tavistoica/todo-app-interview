@@ -1,0 +1,16 @@
+{
+  "name": "@config/ts-config",
+  "version": "1.0.0",
+  "private": true,
+  "description": "TypeScript common configs",
+  "main": "",
+  "scripts": {
+    "build": "",
+    "eslint": "eslint 'package.json' --cache --cache-location './.rush/temp/.eslintcache'",
+    "lint": "pnpm prettier --check && pnpm eslint && pnpm markdownlint",
+    "lint:fix": "pnpm prettier --write && pnpm eslint --fix && pnpm markdownlint --fix",
+    "markdownlint": "markdownlint '**/*.md' --ignore node_modules",
+    "prettier": "prettier '*.js' 'package.json'",
+    "test": ""
+  }
+}

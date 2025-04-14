@@ -1,4 +1,9 @@
 .*
 node_modules
+coverage
+dist
 !.gitignore
 !apps/todo-app/.env.local
+!.env.te
+!.eslintrc.js
+!.prettierrc.js

@@ -1,35 +1,26 @@
-import {
-  APIGatewayProxyEventQueryStringParameters,
-  APIGatewayProxyHandler,
-} from "aws-lambda"
-import { dynamoDb } from "../lib/dynamodb"
-import { ScanCommand } from "@aws-sdk/client-dynamodb"
-import { unmarshall } from "@aws-sdk/util-dynamodb"
+import { APIGatewayProxyHandler } from 'aws-lambda'
+import { getTodoItems } from '../lib/dynamodb'
+import { unmarshall } from '@aws-sdk/util-dynamodb'
+import { successResponse } from '../lib/utils/responses'
+import middy from '@middy/core'
+import { errorHandler } from '../lib/middleware/error-handler'
+import { GetTodosResponse } from '@shared/types'
 
-const tableName = process.env.TABLE_NAME
+export const getTodos: APIGatewayProxyHandler = async (event) => {
+  const queryParams = event.queryStringParameters
 
-export const handler: APIGatewayProxyHandler = async (event) => {
-  try {
-    const queryParams =
-      event.queryStringParameters as APIGatewayProxyEventQueryStringParameters
+  const page = queryParams?.page ? Number(queryParams.page) : 1
+  const limit = queryParams?.limit ? Number(queryParams.limit) : 10
 
-    const pageNumber = queryParams?.page ? Number(queryParams.page) : 1
-    const limitNumber = queryParams?.limit ? Number(queryParams.limit) : 10
+  const foundTodos = await getTodoItems({ page, limit })
 
-    const params = {
-      TableName: tableName as string,
-    }
-
-    const result = await dynamoDb.send(new ScanCommand(params))
-
-    return {
-      statusCode: 200,
-      body: JSON.stringify(result.Items?.map((item) => unmarshall(item))),
-    }
-  } catch (error) {
-    return {
-      statusCode: 500,
-      body: JSON.stringify(error),
-    }
-  }
+  return successResponse(
+    {
+      todos: foundTodos.result.Items?.map((item) => unmarshall(item)),
+      hasNextPage: foundTodos.hasNextPage,
+    } as GetTodosResponse,
+    200,
+  )
 }
+
+export const handler = middy(getTodos).use(errorHandler())
