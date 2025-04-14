@@ -16,6 +16,11 @@
     "test": "pnpm -r run test",
     "lint": "pnpm -r run lint",
     "lint:fix": "pnpm -r run lint:fix",
-    "prettier": "pnpm -r run prettier"
+    "prettier": "pnpm -r run prettier",
+    "prepare": "husky install",
+    "prepush": "pnpm run lint && pnpm run prettier && pnpm run test"
+  },
+  "devDependencies": {
+    "husky": "^8.0.0"
   }
 }
